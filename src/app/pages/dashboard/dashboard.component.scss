@@ -1,0 +1,92 @@
+
+@import '../../@theme/styles/themes';
+
+// @include nb-install-component() {
+//   .main-bg {
+//     background:url("assets/images/wrapper-bg.png");
+//     width: 100%;
+//     min-height: 400px;
+//   }
+//   .header-title {
+//     background:url("assets/images/header.png");
+//     text-align: center;
+//     min-height: 64px;
+//     width: 100%;
+//     margin-top: -25px;
+//   }
+//   .show-grid {
+//     .row {
+//       margin: -0.5rem;
+//     }
+
+//     div[class^=col-] {
+//       padding: 0.5rem;
+//       box-sizing: border-box;
+
+//       div {
+//         text-align: center;
+//         background-color: nb-theme(background-basic-color-2);
+//         padding: 0.75rem 0.25rem;
+//         border-radius: 0.25rem;
+//       }
+//     }
+//   }
+
+//   .grid-h {
+//     margin-top: 1.5rem;
+
+//     &:first-child {
+//       margin-top: 0;
+//     }
+//   }
+
+//   .table-responsive {
+//     margin-top: 1rem;
+//   }
+// }
+
+body.bg01 {background-image:url("assets/images/bg01.png");}
+body.bg02 {background-image:url("assets/images/bg02.png");}
+body.bg03 {background-image:url("assets/images/bg03.png");}
+body.bg04 {background-image:url("assets/images/bg04.png");}
+.header {
+	margin:0 auto;
+	width:100%;
+	height:65px;
+	max-width:1920px;
+	background:url("assets/images/header.png") center no-repeat;
+}
+.header h3 {
+	margin:0;
+	padding:0;
+	line-height:50px;
+	text-align:center;
+	font-size:24px;
+	color:#5dc2fe;
+}
+.wrapper {position:absolute;top:80px;bottom:0;left:0;right:0;min-height:555px;}
+.container-fluid {height:100%;min-height:100%;}
+.row {margin-left:-7px;margin-right:-8px;}
+.row>div {padding-left:7px;padding-right:8px;}
+.xpanel-wrapper {padding-bottom:15px;box-sizing:border-box;}
+.xpanel-wrapper-1 {height:100%;}
+.xpanel-wrapper-2 {height:50%;}
+.xpanel-wrapper-3 {height:33.33333%;}
+.xpanel {
+	padding:15px;
+	height:100%;
+	min-height:170px;
+	background:url("assets/images/panel.png") center no-repeat;
+	background-size:100% 100%;
+	box-sizing:border-box;
+}
+
+/* tool */
+.fill-h {height:100%;min-height:100%;}
+.no-margin {margin:0 !important;}
+.no-padding {padding:0 !important;}
+
+/* scrollbar */
+::-webkit-scrollbar {width:0;height:0;}
+::-webkit-scrollbar-track {background-color:transparent;}
+::-webkit-scrollbar-thumb {border-radius:5px;background-color:rgba(0, 0, 0, 0.3);}
