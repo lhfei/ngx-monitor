@@ -15,12 +15,12 @@ const routes: Routes = [{
       component: MonitorComponent,
     },
     {
-      path: 'dashboard',
+      path: 'monitor',
       component: DashboardComponent,
     },
     {
       path: '',
-      redirectTo: 'dashboard',
+      redirectTo: 'monitor',
       pathMatch: 'full',
     },
   ],

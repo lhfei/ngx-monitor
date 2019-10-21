@@ -20,14 +20,14 @@ export class OperationPieComponent implements AfterViewInit, OnDestroy {
   }
   onResize(event) {
     this.initOpts = {
-      height: document.getElementById('operationPieChartView').offsetHeight - 30,
+      height: document.getElementById('operationPieChartView').offsetHeight - 10,
     };
     this.echartsIntance.resize();
   }
 
   ngAfterViewInit() {
     this.initOpts = {
-      height: document.getElementById('operationPieChartView').offsetHeight - 30,
+      height: document.getElementById('operationPieChartView').offsetHeight - 10,
     };
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
 
@@ -35,7 +35,7 @@ export class OperationPieComponent implements AfterViewInit, OnDestroy {
       const echarts: any = config.variables.echarts;
 
       this.options = {
-        backgroundColor: echarts.bg,
+        // backgroundColor: echarts.bg,
         color: [colors.warningLight, colors.infoLight, colors.dangerLight, colors.successLight, colors.primaryLight],
         title: {
           text: '操作用户占比',
@@ -62,7 +62,7 @@ export class OperationPieComponent implements AfterViewInit, OnDestroy {
           {
             name: '操作类型',
             type: 'pie',
-            radius: [20, 110],
+            radius: '80%',
             center: ['50%', '50%'],
             roseType: 'radius',
             data: [

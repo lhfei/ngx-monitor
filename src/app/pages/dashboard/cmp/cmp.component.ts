@@ -22,14 +22,14 @@ export class CmpRadarComponent implements AfterViewInit, OnDestroy {
   }
   onResize(event) {
     this.initOpts = {
-      height: document.getElementById('cmpRadarChartView').offsetHeight - 30,
+      height: document.getElementById('cmpRadarChartView').offsetHeight - 10,
     };
     this.echartsIntance.resize();
   }
 
   ngAfterViewInit() {
     this.initOpts = {
-      height: document.getElementById('cmpRadarChartView').offsetHeight - 30,
+      height: document.getElementById('cmpRadarChartView').offsetHeight - 10,
     };
 
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
@@ -38,7 +38,7 @@ export class CmpRadarComponent implements AfterViewInit, OnDestroy {
       const echarts: any = config.variables.echarts;
 
       this.options = {
-        backgroundColor: echarts.bg,
+        // backgroundColor: echarts.bg,
         color: [colors.danger, colors.warning],
         title: {
           text: '模块数据变化',

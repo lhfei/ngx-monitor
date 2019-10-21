@@ -1,6 +1,9 @@
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import { NbThemeService } from '@nebular/theme';
 
+import { MainService } from '../main/main.service';
+import { StatisticsModel } from '../main/statistics.model';
+
 @Component({
   selector: 'ngx-dashboard-volume-bar',
   templateUrl: './volume.component.html',
@@ -11,7 +14,10 @@ export class VolumeBarComponent implements AfterViewInit, OnDestroy {
   options: any = {};
   themeSubscription: any;
 
-  constructor(private theme: NbThemeService) {
+  xData: Array<string> = [];
+  yData: Array<number> = [];
+
+  constructor(private theme: NbThemeService, private mainService: MainService) {
   }
 
   onChartInit(ec) {
@@ -19,14 +25,31 @@ export class VolumeBarComponent implements AfterViewInit, OnDestroy {
   }
   onResize(event) {
     this.initOpts = {
-      height: document.getElementById('volumeBarChartView').offsetHeight - 30,
+      height: document.getElementById('volumeBarChartView').offsetHeight - 10,
     };
     this.echartsIntance.resize();
   }
 
+  getStatistics(system: string) {
+    const me = this;
+    this.mainService.getStatistics(system).then(data => {
+      // clean it
+      me.xData = [];
+      me.yData = [];
+      data.forEach(m => { // adapter module data
+        me.xData.push(m.rate);
+        me.yData.push(m.total);
+      });
+    }).then(o => { // refresh chart view
+      me.options.xAxis[0].data = me.xData;
+      me.options.series[0].data = me.yData;
+      me.echartsIntance.setOption(me.options, true);
+    });
+  }
+
   ngAfterViewInit() {
     this.initOpts = {
-      height: document.getElementById('volumeBarChartView').offsetHeight - 30,
+      height: document.getElementById('volumeBarChartView').offsetHeight - 10,
     };
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
 
@@ -34,7 +57,7 @@ export class VolumeBarComponent implements AfterViewInit, OnDestroy {
       const echarts: any = config.variables.echarts;
 
       this.options = {
-        backgroundColor: echarts.bg,
+        // backgroundColor: echarts.bg,
         color: [colors.primaryLight],
         title: {
           text: '数据量分布情况',
@@ -54,13 +77,13 @@ export class VolumeBarComponent implements AfterViewInit, OnDestroy {
         grid: {
           left: '3%',
           right: '4%',
-          // bottom: '3%',
+          bottom: '3%',
           containLabel: true,
         },
         xAxis: [
           {
             type: 'category',
-            data: ['< 1K', '1K-10K', '1-5W', '5-50W', '50-100W', '100-500W', '> 500W'],
+            data: this.xData,
             axisTick: {
               alignWithLabel: true,
             },
@@ -111,7 +134,7 @@ export class VolumeBarComponent implements AfterViewInit, OnDestroy {
                 position: 'inside',
               },
             },
-            data: [10, 52, 200, 334, 390, 330, 220],
+            data: this.yData,
           },
         ],
       };

@@ -24,7 +24,7 @@ export class CrudMultipleLineComponent implements AfterViewInit, OnDestroy {
   }
   onResize(event) {
     this.initOpts = {
-      height: document.getElementById('crudMultipleLineChartLine').offsetHeight - 30,
+      height: document.getElementById('crudMultipleLineChartLine').offsetHeight - 10,
     };
     this.echartsIntance.resize();
   }
@@ -32,7 +32,7 @@ export class CrudMultipleLineComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     const me = this;
     this.initOpts = {
-      height: document.getElementById('crudMultipleLineChartLine').offsetHeight - 30,
+      height: document.getElementById('crudMultipleLineChartLine').offsetHeight - 10,
     };
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
 
@@ -40,7 +40,7 @@ export class CrudMultipleLineComponent implements AfterViewInit, OnDestroy {
       const echarts: any = config.variables.echarts;
 
       this.options = {
-        backgroundColor: echarts.bg,
+        // backgroundColor: echarts.bg,
         color: [colors.danger, colors.primary, colors.info],
         title: {
           text: '数据操作统计',
@@ -106,7 +106,7 @@ export class CrudMultipleLineComponent implements AfterViewInit, OnDestroy {
         grid: {
           left: '3%',
           right: '4%',
-          // bottom: '3%',
+          bottom: '3%',
           containLabel: true,
         },
         series: [

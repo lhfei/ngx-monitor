@@ -1,6 +1,8 @@
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import { NbThemeService } from '@nebular/theme';
 
+import { MainService } from '../main/main.service';
+
 @Component({
   selector: 'ngx-dashboard-datasize-bar',
   templateUrl: './datasize.component.html',
@@ -11,7 +13,10 @@ export class DatasizeBarComponent implements AfterViewInit, OnDestroy {
   options: any = {};
   themeSubscription: any;
 
-  constructor(private theme: NbThemeService) {
+  xData: Array<string> = [];
+  yData: Array<number> = [];
+
+  constructor(private theme: NbThemeService, private mainService: MainService) {
   }
 
   onChartInit(ec) {
@@ -19,14 +24,31 @@ export class DatasizeBarComponent implements AfterViewInit, OnDestroy {
   }
   onResize(event) {
     this.initOpts = {
-      height: document.getElementById('datasizeBarChartView').offsetHeight - 30,
+      height: document.getElementById('datasizeBarChartView').offsetHeight - 10,
     };
     this.echartsIntance.resize();
   }
 
+  getModules(system: string) {
+    const me = this;
+    this.mainService.getModules(system).then(data => {
+      // clean it
+      me.xData = [];
+      me.yData = [];
+      data.forEach(m => { // adapter module data
+        me.xData.push(m.firstDir);
+        me.yData.push(m.dirSize);
+      });
+    }).then(o => { // refresh chart view
+      me.options.xAxis[0].data = me.xData;
+      me.options.series[0].data = me.yData;
+      me.echartsIntance.setOption(me.options, true);
+    });
+  }
+
   ngAfterViewInit() {
     this.initOpts = {
-      height: document.getElementById('datasizeBarChartView').offsetHeight - 30,
+      height: document.getElementById('datasizeBarChartView').offsetHeight - 10,
     };
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
 
@@ -34,7 +56,7 @@ export class DatasizeBarComponent implements AfterViewInit, OnDestroy {
       const echarts: any = config.variables.echarts;
 
       this.options = {
-        backgroundColor: echarts.bg,
+        // backgroundColor: echarts.bg,
         color: [colors.primaryLight],
         title: {
           text: '各模块数据大小分布情况',
@@ -53,13 +75,13 @@ export class DatasizeBarComponent implements AfterViewInit, OnDestroy {
         grid: {
           left: '3%',
           right: '4%',
-          // bottom: '3%',
+          bottom: '3%',
           containLabel: true,
         },
         xAxis: [
           {
             type: 'category',
-            data: ['用户管理', '数据接口', '配置管理', '日志模块', '采集量测', '系统监控'],
+            data: this.xData,
             axisTick: {
               alignWithLabel: true,
             },
@@ -109,7 +131,7 @@ export class DatasizeBarComponent implements AfterViewInit, OnDestroy {
                 position: 'inside',
               },
             },
-            data: [6.5, 16, 30, 38, 520, 25],
+            data: this.yData,
           },
         ],
       };

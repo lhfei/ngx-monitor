@@ -7,7 +7,15 @@
     padding-top: nb-theme(layout-padding-top);
   }
 
-  .bgStyle {
-    background-image: url('assets/images/header.png');
+  nb-layout-column {
+    background-image: url(assets/images/bg01.png);
+  }
+
+  nb-layout-header /deep/ {
+    background-image: url(assets/images/bg01.png);
+
+    nav {
+      background: transparent;
+    }
   }
 }

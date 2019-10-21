@@ -1,5 +1,5 @@
 export class BaseService {
-  protected rootPath: string = '/api/v1/';
+  protected rootPath: string = '../';
 
   protected handleError(error: any): Promise<any> {
     console.error('An error occurred', error); // for demo purposes only

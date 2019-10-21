@@ -9,7 +9,7 @@
             </div>
           </div>
           <div class="xpanel-wrapper xpanel-wrapper-3">
-            <div class="xpanel"  id="cmpRadarChartView">
+            <div class="xpanel" id="cmpRadarChartView">
               <ngx-dashboard-cmp-radar></ngx-dashboard-cmp-radar>
             </div>
           </div>
@@ -24,13 +24,14 @@
         <div class="col-lg-4 fill-h">
           <div class="xpanel-wrapper" style="height: 67%;">
             <div class="xpanel" id="mainGraphChartView">
-              <ngx-dashboard-main-graph></ngx-dashboard-main-graph>
+              <ngx-dashboard-main-graph [valumeCmp]="valumeCmp" [datasizeCmp]="datasizeCmp"
+                [wordCloudCmp]="wordCloudCmp"></ngx-dashboard-main-graph>
             </div>
           </div>
 
           <div class="xpanel-wrapper xpanel-wrapper-3">
             <div class="xpanel" id="volumeBarChartView">
-              <ngx-dashboard-volume-bar></ngx-dashboard-volume-bar>
+              <ngx-dashboard-volume-bar #valumeCmp></ngx-dashboard-volume-bar>
             </div>
           </div>
 
@@ -40,7 +41,7 @@
           <div class="xpanel-wrapper xpanel-wrapper-3">
             <div class="xpanel" id="datasizeBarChartView">
               <!-- 各模块数据大小 -->
-              <ngx-dashboard-datasize-bar></ngx-dashboard-datasize-bar>
+              <ngx-dashboard-datasize-bar #datasizeCmp></ngx-dashboard-datasize-bar>
             </div>
           </div>
           <div class="xpanel-wrapper xpanel-wrapper-3">
@@ -50,9 +51,9 @@
             </div>
           </div>
           <div class="xpanel-wrapper xpanel-wrapper-3">
-            <div class="xpanel" id="topicWordcloud">
+            <div class="xpanel" id="wordCloudChartView">
               <!-- 区县地图 -->
-              <img src="assets/images/yx.png" />
+              <ngx-dashboard-word-cloud #wordCloudCmp></ngx-dashboard-word-cloud>
             </div>
           </div>
         </div><!-- Right End -->
@@ -60,5 +61,3 @@
     </div>
   </div>
 </body>
-
-

@@ -23,14 +23,14 @@ export class CategoryPieChartComponent implements AfterViewInit, OnDestroy {
   }
   onResize(event) {
     this.initOpts = {
-      height: document.getElementById('categoryPieChartView').offsetHeight - 30,
+      height: document.getElementById('categoryPieChartView').offsetHeight - 10,
     };
     this.echartsIntance.resize();
   }
 
   ngAfterViewInit() {
     this.initOpts = {
-      height: document.getElementById('categoryPieChartView').offsetHeight - 30,
+      height: document.getElementById('categoryPieChartView').offsetHeight - 5,
     };
 
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
@@ -39,7 +39,7 @@ export class CategoryPieChartComponent implements AfterViewInit, OnDestroy {
 
 
       this.options = {
-        backgroundColor: echarts.bg,
+        // backgroundColor: echarts.bg,
         color: [colors.warningLight, colors.infoLight, colors.dangerLight, colors.successLight, colors.primaryLight],
         title: {
           text: '表类型占比',

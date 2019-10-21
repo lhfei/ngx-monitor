@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, Input } from '@angular/core';
 import { NbThemeService } from '@nebular/theme';
 
 import { Observable } from 'rxjs/Observable';
@@ -6,90 +6,41 @@ import { WebSocketSubject } from 'rxjs/observable/dom/WebSocketSubject';
 import * as Stomp from 'stompjs';
 import * as SockJS from 'sockjs-client';
 
+import { VolumeBarComponent } from '../volume/volume.component';
+import { DatasizeBarComponent } from '../datasize/datasize.component';
+import { WordCloudComponent } from '../word/word.component';
 import { CrudModel } from '../crud/crud.model';
-import { WebsocketService } from "./websocket.service";
+import { SystemModel } from './system.model';
+import { NodeModel } from './node.model';
+import { LinkModel } from './link.model';
+import { MainService } from './main.service';
 
 @Component({
   selector: 'ngx-dashboard-main-graph',
   templateUrl: './main.component.html',
 })
 export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
+  themeSubscription: any;
   initOpts: any = {};
   options: any = {};
-  themeSubscription: any;
   echartsIntance: any;
-  frequency_seconds = 1000;
+  client: any;  // socket client
+  url = '../ws';
 
-  client: any;
-  url = '../api/v1/ws';
-  private socket$: WebSocketSubject<CrudModel>;
+  private monitorName: string = '全业务中心';
+  nodes: Array<SystemModel> = [];
+  links: Array<LinkModel> = [];
+  currentSystem: NodeModel;
+
+  // Injtect component
+  @Input() valumeCmp: VolumeBarComponent;
+  @Input() datasizeCmp: DatasizeBarComponent;
+  @Input() wordCloudCmp: WordCloudComponent;
 
   nodesM = [
     {
-      name: '全业务中心',
+      name: this.monitorName,
       img: 'monitor.png',
-    },
-  ];
-  nodes = [
-    {
-      name: '采集量测',
-      img: 'iot.png',
-      alarm: '',
-      state: '1',
-    },
-    {
-      name: '营销系统',
-      img: 'yx.png',
-      alarm: '',
-      state: '1',
-    }, {
-      name: 'ERP',
-      img: 'erp.png',
-      alarm: '',
-      state: '1',
-    },
-    {
-      name: 'PMS',
-      img: 'pms.png',
-      alarm: '',
-      state: '1',
-    },
-    {
-      name: '电能质量监测',
-      img: 'pms.png',
-      alarm: '',
-      state: '1',
-    },
-  ];
-  links = [
-    {
-      name: '',
-      source: '采集量测',
-      target: '全业务中心',
-      state: '1',
-    },
-    {
-      name: '',
-      source: '营销系统',
-      target: '全业务中心',
-      state: '1',
-    }, {
-      name: '',
-      source: 'ERP',
-      target: '全业务中心',
-      state: '1',
-    },
-    {
-      name: '',
-      source: 'PMS',
-      target: '全业务中心',
-      state: '1',
-    },
-    {
-      name: '',
-      source: '电能质量监测',
-      target: '全业务中心',
-      state: '1',
     },
   ];
 
@@ -112,12 +63,13 @@ export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
 
   x = 1;
   y = 1;
-  x_points = [2, 1, 0, 1, 2];
   dataMap = new Map();
 
-  constructor(private theme: NbThemeService) {
-    this.socket$ = WebSocketSubject.create(this.url);
+  constructor(private theme: NbThemeService, private mainService: MainService) {
+    // this.socket$ = WebSocketSubject.create(this.url);
     this.connection();
+
+    this.getSystems();
   }
 
   onChartInit(ec) {
@@ -125,19 +77,22 @@ export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
   }
   onResize(event) {
     this.initOpts = {
-      height: document.getElementById('mainGraphChartView').offsetHeight - 30,
+      height: document.getElementById('mainGraphChartView').offsetHeight - 10,
     };
     this.echartsIntance.resize();
   }
 
+  refreshChartView() {
+    this.datasizeCmp.getModules(this.currentSystem.code);
+    this.valumeCmp.getStatistics(this.currentSystem.code);
+    this.wordCloudCmp.getWords(this.currentSystem.code);
+  }
+
   onChartClick(event) {
-    this.connection();
-    // this.socket$
-    //   .subscribe(
-    //     (message) => { console.info(message); alert(message); },
-    //     (err) => console.error(err),
-    //     () => console.warn('Completed!'),
-    //   );
+    if (event.name !== this.monitorName) {
+      this.currentSystem = event.data;
+      this.refreshChartView();
+    }
   }
 
   connection() {
@@ -148,9 +103,31 @@ export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
     this.client.connect({}, function (frame: any) {
       that.client.subscribe('/topic/binlog', (message: any) => {
         if (message.body) {
-          alert(message.body);
+          // alert(message.body);
+          that.getLinks(JSON.parse(message.body));
         }
       });
+    });
+  }
+
+  /**
+   * List all Systems
+   *
+  */
+  getSystems() {
+    this.mainService.getSystems().then(data => {
+      this.nodes = data;
+      this.currentSystem = new NodeModel(this.nodes[0].schemaName, this.nodes[0].schemaNameZh,
+        null, null, null, null, null);
+    }).then(o => {// adapter link nodes
+      this.nodes.forEach(system => {
+        const link: LinkModel = new LinkModel('', system.schemaNameZh, this.monitorName, '1');
+        this.links.push(link);
+      });
+    }).then(o => {// init GraphChart
+      this.drawGraphChart();
+    }).then(o => { // regresh Chart
+      this.refreshChartView();
     });
   }
 
@@ -158,54 +135,36 @@ export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
    * Graph Event Handlers
    */
   getSource() {
-    for (let j: number = 0; j < this.nodes.length; j++) {
-      const node: any = {
-        name: this.nodes[j].name,
-        value: [this.x_points[j], this.y],
-        symbolSize: 60,
-        alarm: this.nodes[j].alarm,
-        symbol: 'image://assets/images/' + this.nodes[j].img,
-        itemStyle: {
-          normal: {
-            color: '#12b5d0',
-          },
-        },
-      };
-      this.dataMap.set(this.nodes[j].name, [this.x, this.y]);
+    const x_points = [3, 1.5, 0, 2];
+    let idx: number = 0;
+    this.nodes.forEach(system => {
+      const node: NodeModel = new NodeModel(system.schemaName, system.schemaNameZh,
+        'image://assets/images/' + system.schemaName + '.png',
+        [x_points[idx], this.y], 60, '', '1');
+
+      this.dataMap.set(system.schemaNameZh, [x_points[idx], this.y]);
       this.charts.nodes.push(node);
       this.y += -1;
-    }
+      idx ++;
+
+    });
   }
 
   getTarget() {
     for (let k = 0; k < this.nodesM.length; k++) {
-      const node = {
-        name: this.nodesM[k].name,
-        value: [this.x + 5, this.y + 3],
-        symbolSize: 80,
-        symbol: 'image://assets/images/' + this.nodesM[k].img,
-        itemStyle: {
-          normal: {
-            color: '#12b5d0',
-          },
-        },
-      };
-      this.dataMap.set(this.nodesM[k].name, [this.x + 5, this.y + 3]);
+      const node: NodeModel = new NodeModel(this.nodesM[k].name, this.nodesM[k].name,
+        'image://assets/images/' + this.nodesM[k].img,
+        [this.x + 5, this.y + 2], 80, '', '1');
+      this.dataMap.set(this.nodesM[k].name, [this.x + 5, this.y + 2]);
       this.charts.nodes.push(node);
     }
   }
 
-  checkStatus() {
+  checkStatus(model: any) {
     for (let i = 0; i < this.links.length; i++) {
-      if (this.links[i].state === '1') {
-        this.links[i].name = '插入10条';
-      } else {
-        this.links[i].name = '暂停传输中';
-      }
       const link = {
         source: this.links[i].source,
         target: this.links[i].target,
-        // target: nodesM[0].name,
         label: {
           normal: {
             show: true,
@@ -265,7 +224,7 @@ export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
         },
         lineStyle: {
           normal: {
-            width: 3,
+            width: 1,
             shadowColor: 'none',
             curveness: '0.25',
           },
@@ -292,7 +251,7 @@ export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
           trailLength: 0,
           symbol: 'arrow',
           color: '#0fff17',
-          symbolSize: 15,
+          symbolSize: 10,
         },
         lineStyle: {
           curveness: '0.25',
@@ -305,17 +264,26 @@ export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
   /**
    * Update Links status
    */
-  getLinks() {
+  getLinks(model: any) {
     this.charts.links = [];
     this.charts.linesData = [];
 
     for (let i = 0; i < this.links.length; i++) {
       const _idx = Math.floor(Math.random() * 3);
-      if (this.links[i].state === '1') {
-        this.links[i].name = this.dml_ops[_idx].name + (Math.floor(Math.random() * 1000) + 1) + '条';
-      } else {
-        this.links[i].name = '暂停传输中';
+      // if (this.links[i].state === '1') {
+      //   this.links[i].name = this.dml_ops[_idx].name + (Math.floor(Math.random() * 1000) + 1) + '条';
+      // } else {
+      //   this.links[i].name = '暂停传输中';
+      // }
+
+      if (model.type === 'INSERT') {
+        this.links[i].name = '插入' + model.data.length + '条';
+      } else if (model.type === 'UPDATE') {
+        this.links[i].name = '更新' + model.data.length + '条';
+      } else if (model.type === 'DELETE') {
+        this.links[i].name = '删除' + model.data.length + '条';
       }
+
       const link = {
         source: this.links[i].source,
         target: this.links[i].target,
@@ -346,6 +314,21 @@ export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
         this.charts.linesData.push(lines);
       }
     }
+
+    this.buildOptions();
+    this.echartsIntance.setOption(this.options);
+  }
+
+  drawGraphChart() {
+    this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
+      const colors = config.variables;
+      const echarts: any = config.variables.echarts;
+
+      this.getSource();
+      this.getTarget();
+      this.checkStatus(new CrudModel());
+      this.buildOptions();
+    });
   }
 
   /**
@@ -357,45 +340,34 @@ export class MainGraphChartComponent implements AfterViewInit, OnDestroy {
       height: document.getElementById('mainGraphChartView').offsetHeight - 100,
     };
 
-    this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
-      const colors = config.variables;
-      const echarts: any = config.variables.echarts;
+    // window.setInterval(() => {
+    //   const dataI = [];
+    //   this.getLinks();
 
-      this.getSource();
-      this.getTarget();
-      this.checkStatus();
-      this.buildOptions();
+    //   for (let n = 0; n < this.nodes.length; n++) {
+    //     const alarm = this.nodes[n].alarm;
+    //     if (alarm !== null && alarm !== undefined) {
+    //       me.options.series[0].data[n].symbolSize = 40;
+    //       me.options.series[0].data = this.charts.nodes;
+    //       me.options.series[0].links = this.charts.links;
+    //       me.options.series[1].data = this.charts.linesData;
+    //       dataI.push(n);
+    //     }
+    //   }
+    //   me.echartsIntance.setOption(me.options);
+    //   setTimeout(() => {
+    //     for (let m = 0; m < dataI.length; m++) {
+    //       me.options.series[0].data[dataI[m]].symbolSize = 50;
+    //     }
+    //     me.options.series[0].data = me.charts.nodes;
+    //     me.options.series[0].links = me.charts.links;
+    //     me.options.series[1].data = me.charts.linesData;
 
-    });
+    //     me.echartsIntance.setOption(me.options);
 
-    window.setInterval(() => {
-      const dataI = [];
-      this.getLinks();
+    //   }, 500);
 
-      for (let n = 0; n < this.nodes.length; n++) {
-        const alarm = this.nodes[n].alarm;
-        if (alarm !== null && alarm !== undefined) {
-          me.options.series[0].data[n].symbolSize = 40;
-          me.options.series[0].data = this.charts.nodes;
-          me.options.series[0].links = this.charts.links;
-          me.options.series[1].data = this.charts.linesData;
-          dataI.push(n);
-        }
-      }
-      me.echartsIntance.setOption(me.options);
-      setTimeout(() => {
-        for (let m = 0; m < dataI.length; m++) {
-          me.options.series[0].data[dataI[m]].symbolSize = 50;
-        }
-        me.options.series[0].data = me.charts.nodes;
-        me.options.series[0].links = me.charts.links;
-        me.options.series[1].data = me.charts.linesData;
-
-        me.echartsIntance.setOption(me.options);
-
-      }, 500);
-
-    }, 1000);
+    // }, 1000);
   }
 
   ngOnDestroy(): void {
