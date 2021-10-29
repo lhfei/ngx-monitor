@@ -12,7 +12,7 @@ export class CrudService extends BaseService {
 
   constructor(private http: HttpClient) {
     super();
-    this.restUrl = this.rootPath + '/kafka';
+    this.restUrl = this.rootPath + '/api/v1';
   }
 
   getSeries(): Promise<CrudModel[]> {
