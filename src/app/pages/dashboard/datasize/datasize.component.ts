@@ -59,7 +59,7 @@ export class DatasizeBarComponent implements AfterViewInit, OnDestroy {
         // backgroundColor: echarts.bg,
         color: [colors.primaryLight],
         title: {
-          text: '各模块数据大小分布情况',
+          text: '数据分布情况',
           left: 'center',
           top: 5,
           textStyle: {
@@ -119,7 +119,7 @@ export class DatasizeBarComponent implements AfterViewInit, OnDestroy {
         ],
         series: [
           {
-            name: '数据文件大小(GB)',
+            name: '数据文件大小(TB)',
             type: 'bar',
             barWidth: '60%',
             label: {

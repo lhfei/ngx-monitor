@@ -38,7 +38,7 @@ export class OperationPieComponent implements AfterViewInit, OnDestroy {
         // backgroundColor: echarts.bg,
         color: [colors.warningLight, colors.infoLight, colors.dangerLight, colors.successLight, colors.primaryLight],
         title: {
-          text: '操作用户占比',
+          text: '数据库类型',
           left: 'left',
           top: 5,
           textStyle: {
@@ -66,10 +66,10 @@ export class OperationPieComponent implements AfterViewInit, OnDestroy {
             center: ['50%', '50%'],
             roseType: 'radius',
             data: [
-              { value: 335, name: 'PLSQL' },
-              { value: 310, name: 'Admin' },
-              { value: 234, name: '其它' },
-              { value: 1548, name: 'Weblogic' },
+              { value: 335, name: 'Hive' },
+              { value: 310, name: 'PolarDB' },
+              { value: 234, name: 'OceanBase' },
+              { value: 1548, name: 'DataLake' },
             ],
             itemStyle: {
               emphasis: {

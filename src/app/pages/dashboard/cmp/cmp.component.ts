@@ -41,7 +41,7 @@ export class CmpRadarComponent implements AfterViewInit, OnDestroy {
         // backgroundColor: echarts.bg,
         color: [colors.danger, colors.warning],
         title: {
-          text: '模块数据变化',
+          text: '数据增量变化',
           left: 'left',
           top: 5,
           textStyle: {
@@ -69,7 +69,7 @@ export class CmpRadarComponent implements AfterViewInit, OnDestroy {
             { name: '数据接口', max: 16000 },
             { name: '配置管理', max: 30000 },
             { name: '日志模块', max: 38000 },
-            { name: '采集量测', max: 52000 },
+            { name: '纳税服务', max: 52000 },
             { name: '系统监控', max: 25000 },
           ],
           splitArea: {
